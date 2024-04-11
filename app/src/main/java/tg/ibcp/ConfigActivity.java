@@ -5,6 +5,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,7 +21,10 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.widget.Toast;
 
+
 public class ConfigActivity extends AppCompatActivity {
+    public static final int NOTIF_ID_WRONGPASS = 32423;
+    public static final int NOTIF_ID_SETCREDS = 42754;
     public static final String SANITIZED_AMPERSAND = "ibcp.AMPERSAND"; // external
     private class WebViewHelper {
         private WebView wb;
@@ -41,7 +45,7 @@ public class ConfigActivity extends AppCompatActivity {
         }
         private String getUsername(){
             if(username==null){
-                username = String.valueOf(getPrefs().getString(getString(R.string.prefs_user),""));
+                username = getPrefs().getString(getString(R.string.prefs_user),"");
             }
             return username;
         }
@@ -102,7 +106,6 @@ public class ConfigActivity extends AppCompatActivity {
                 speditor.putString(ctx.getString(R.string.prefs_user), id);
                 speditor.putString(ctx.getString(R.string.prefs_pass), pass);
                 speditor.putLong(ctx.getString(R.string.prefs_login_time), 0);
-
                 speditor.apply();
                 new Handler(Looper.getMainLooper()).post(() -> {
                             wvh.setUsername(id);
@@ -111,16 +114,17 @@ public class ConfigActivity extends AppCompatActivity {
                             Toast.makeText(ctx, "Automatic Login Credentials Set", Toast.LENGTH_SHORT).show();
                         }
                 );
+                SignInUtils.signInIfRequired(ctx);
             }
 
             @JavascriptInterface
             public void notifRequest() {
                 ctx.startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
             }
-        };
+        }
     }
     private WebViewHelper mWebViewHelper;
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if(mWebViewHelper!=null){
@@ -130,7 +134,7 @@ public class ConfigActivity extends AppCompatActivity {
                     mWebViewHelper.drawWebUi();
                 }
             }
-            android.util.Log.d("allahuakbar", "Got message: " + intent.getLongExtra(getString(R.string.login_time_extra), 0));
+
         }
     };
     @Override
@@ -141,6 +145,7 @@ public class ConfigActivity extends AppCompatActivity {
         mWebViewHelper.drawWebUi();
         getNotificationPermission();
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter(getString(R.string.configactivity_broadcast_receiver)));
+        cancelNotifications();
     }
 
     @Override
@@ -153,8 +158,10 @@ public class ConfigActivity extends AppCompatActivity {
             mWebViewHelper.setNotifAccess(notifAccess);
             mWebViewHelper.drawWebUi();
         }
+        cancelNotifications();
         super.onResume();
     }
+
     public void getNotificationPermission(){
         try {
             //TODO: add permission request rationale
@@ -164,5 +171,10 @@ public class ConfigActivity extends AppCompatActivity {
                         0xBAD/*UNUSED*/);
             }
         }catch (Exception ignored){}
+    }
+    public void cancelNotifications(){
+        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(NOTIF_ID_SETCREDS);
+        notificationManager.cancel(NOTIF_ID_WRONGPASS);
     }
 }

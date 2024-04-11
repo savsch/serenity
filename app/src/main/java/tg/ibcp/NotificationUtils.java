@@ -5,7 +5,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 
@@ -29,13 +28,13 @@ public class NotificationUtils {
                         .setContentText("Tap to setup automatic wifi login.");
 
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(42754, builder.build());
+        manager.notify(ConfigActivity.NOTIF_ID_SETCREDS, builder.build());
     }
     public static void notifyWrongPass(Context context){
         CharSequence name = "Wrong Credentials";
         String description = "Notify about wrong username/password";
         String id = "notifyWrongPass";
-        int importance = NotificationManager.IMPORTANCE_DEFAULT;
+        int importance = NotificationManager.IMPORTANCE_HIGH;
         NotificationChannel channel = new NotificationChannel(id, name, importance);
         channel.setDescription(description);
         NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
@@ -50,6 +49,6 @@ public class NotificationUtils {
                         .setContentText("Tap to re-enter automatic wifi login credentials.");
 
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(32423, builder.build());
+        manager.notify(ConfigActivity.NOTIF_ID_WRONGPASS, builder.build());
     }
 }
