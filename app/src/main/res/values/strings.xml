@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">Undecided</string>
-    <string name="notification_service_name">Login Portal Notification Listener</string>
+    <string name="app_name">Serenity</string>
+    <string name="notification_service_name">Serenity IIT(BHU) Wi-Fi Login Notification Listener</string>
     <string name="defeaultPrefs">mp349iru</string>
     <string name="prefs_user">j8904wjf</string>
     <string name="prefs_pass">4i8miru3</string>
