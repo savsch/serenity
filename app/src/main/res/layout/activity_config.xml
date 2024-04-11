@@ -1,14 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".ConfigActivity">
+    <androidx.appcompat.widget.Toolbar
+        android:background="#E66324B8"
+        android:layout_width="match_parent"
+        android:layout_height="20sp"
+        android:layout_weight=".08">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                app:layout_constraintRight_toLeftOf="@id/aboutButton"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:orientation="vertical"
+                >
+                <TextView
+                    android:paddingTop="5sp"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:textColor="#fff"
+                    android:text="Serenity"
+                    android:autoSizeTextType="uniform"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="0.6"/>
+                <TextView
+                    android:layout_margin="0dp"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="Auto Sign-in for IIT(BHU) WiFi"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="0.4"/>
+            </LinearLayout>
+            <ImageButton
+                android:id="@+id/aboutButton"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:layout_margin="16sp"
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                app:layout_constraintDimensionRatio="1:1"
+                android:background="@drawable/baseline_info_24"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.appcompat.widget.Toolbar>
     <WebView
         android:id="@+id/mainwb"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".92"
         />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

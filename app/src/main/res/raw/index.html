@@ -19,11 +19,7 @@ body{
 canvas{
   padding:0;border:0;
   display:block;
-  /* vertical-align:top; */
 }
-
-
-/* ---- particles.js container ---- */
 
 #particles-js{
   width: 100%;
@@ -36,6 +32,7 @@ canvas{
 }
 #main_wrapper {
   position:fixed;
+  overflow-y:scroll;
   left: 50%;
   width:98%;
   height:100%;
@@ -44,10 +41,10 @@ canvas{
 .element{
   display:block;
   margin-top:1rem;
-  padding: 2rem;
+  padding: 1rem 2rem 1rem 2rem;
   border-radius: 10px;
-  box-shadow: 0 0 0.1rem rgba(8,7,16,0.6);
-  backdrop-filter: blur(3px);
+  box-shadow: 0 0 0.2rem rgba(8,7,16,0.6);
+  backdrop-filter: blur(30px);
 }
 .element * {
   font-family: 'Poppins',sans-serif;
@@ -57,7 +54,6 @@ canvas{
   border: none;
   animation: transveal 300ms ease 0s 1 alternate forwards;
 }
-
 label{
   display: block;
   margin-top: 0.7rem;
@@ -336,7 +332,7 @@ button{
   function pageSetup(notifAccess, username, lastLogin){
     document.querySelector('#main_wrapper').innerHTML=`
 <div class="element" id="hint">
-  <h2 id="headline">Complete the below one-time setup to get started:</h2>
+  <h2 style="margin-bottom:0.2rem;margin-top:0;" id="headline">Complete the below one-time setup to get started:</h2>
   <br>
   <div class="checkbox-wrapper-26">
     <input type="checkbox" id="login_checkbox" disabled checked>
@@ -357,7 +353,7 @@ button{
 <form id="idpass" class="element">
   <div id="inputFields" class="hidden">
     <label for="username">Username / Roll Number</label>
-    <input type="text" placeholder="Username" id="username">
+    <input type="text" placeholder="Username / Roll No" id="username">
     <label for="password">Password</label>
     <input type="password" placeholder="Password" id="password">
     <button type="button" onclick="IBCP.detailUpdate(document.querySelector('#username').value,document.querySelector('#password').value)">Update</button>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AlertDialogCustom" parent="@style/Theme.AppCompat.Dialog.Alert">
+        <item name="android:textColor">#fff</item>
+        <item name="fontFamily">@font/poppins_regular</item>
+        <item name="android:headerDividersEnabled">true</item>
+        <item name="android:background">#E6632499</item>
+    </style>
+</resources>
