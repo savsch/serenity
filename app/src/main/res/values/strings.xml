@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Undecided</string>
+    <string name="notification_service_name">Login Portal Notification Listener</string>
+    <string name="defeaultPrefs">mp349iru</string>
+    <string name="prefs_user">j8904wjf</string>
+    <string name="prefs_pass">4i8miru3</string>
+    <string name="prefs_login_time">dw83jd6a</string>
+    <string name="login_time_extra">loginTimeExtra</string>
+    <string name="configactivity_broadcast_receiver">yet-another-event</string>
+</resources>
