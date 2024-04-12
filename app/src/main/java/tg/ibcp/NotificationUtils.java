@@ -21,7 +21,7 @@ public class NotificationUtils {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, new Intent(context, ConfigActivity.class), PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(context, id)
-                        .setSmallIcon(R.drawable.baseline_wifi_lock_24)
+                        .setSmallIcon(R.drawable.icon_fg_new)
                         .setContentTitle("WiFi Login Credentials Not Set")
                         .setAutoCancel(true)
                         .setContentIntent(pendingIntent)
@@ -42,7 +42,7 @@ public class NotificationUtils {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, new Intent(context, ConfigActivity.class), PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(context, id)
-                        .setSmallIcon(R.drawable.baseline_wifi_lock_24)
+                        .setSmallIcon(R.drawable.icon_fg_new)
                         .setContentTitle("Wrong WiFi Login Password")
                         .setAutoCancel(true)
                         .setContentIntent(pendingIntent)
