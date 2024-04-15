@@ -54,6 +54,12 @@ canvas{
   border: none;
   animation: transveal 300ms ease 0s 1 alternate forwards;
 }
+.element button{
+  border: 1px inset #aaa;
+}
+.element input{
+  border: 1px inset #aaa;
+}
 label{
   display: block;
   margin-top: 0.7rem;
@@ -77,7 +83,7 @@ input{
 }
 button{
   margin-top: 1.5rem;
-  left: 50%;
+  left: 50%; /* has no effects but kept for historical sentiment */
   width:50%;
   transform: translateX(50%);
   background-color: #0000001d;
@@ -372,7 +378,7 @@ button{
     if(!notifAccess){
       // document.querySelector('#notifReqBtn').classList.add('hidden');
       document.querySelector("#notif_checkbox").checked = false;
-      document.querySelector('#setup_notif_hint').innerHTML="Tap to Grant Notification Access";
+      document.querySelector('#setup_notif_hint').innerHTML="(Optional) Tap to Grant Notification Access";
       document.querySelector('#setup_notif').onclick = ()=>{IBCP.notifRequest()};
       // document.querySelector('#setup_notif').style.backgroundColor="#0000001d";
       // document.querySelector('#setup_notif_hint').style.padding="0.5rem";
@@ -393,15 +399,20 @@ button{
       document.querySelector('#setup_login_hint').innerHTML = "Set Login Credentials Below";
       toggleDetailForm();
     }
-    if(notifAccess && username && lastLogin!=-1){
-      document.querySelector('#headline').innerHTML="You're all set.";
-      particlesInit();
+    if(username && lastLogin!=-1){
       let lastLoginTime='Never';
       if(lastLogin!=0){
         let d = new Date(Number(lastLogin));
         lastLoginTime = d.toLocaleTimeString() + ' on ' + d.toLocaleDateString();
       }
       document.querySelector('#last_login').innerHTML=`Last Automatic Login:<BR>&nbsp;&nbsp;${lastLoginTime}`;
+      if(notifAccess){
+        document.querySelector('#headline').innerHTML="You're all set.";
+        particlesInit();
+      }else{
+        document.querySelector('#headline').innerHTML="Grant notification access to automatically detect when Sign-In is needed";
+        document.querySelector('#hint').onclick = ()=>{IBCP.notifRequest()};
+      }
     }
   }
 </script>

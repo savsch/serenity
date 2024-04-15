@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,10 +30,12 @@ import androidx.core.text.HtmlCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 
+
 public class ConfigActivity extends AppCompatActivity {
     public static final int NOTIF_ID_WRONGPASS = 32423;
     public static final int NOTIF_ID_SETCREDS = 42754;
     public static final String SANITIZED_AMPERSAND = "ibcp.AMPERSAND"; // external
+    public boolean firstRun = false;
 
     private class WebViewHelper {
         private WebView wb;
@@ -150,8 +153,12 @@ public class ConfigActivity extends AppCompatActivity {
             if (mWebViewHelper != null) {
                 long loginTime = intent.getLongExtra(getString(R.string.login_time_extra), -0x69);
                 if (loginTime != -0x69) {
-                    mWebViewHelper.setLoginTime(String.valueOf(loginTime));
-                    mWebViewHelper.drawWebUi();
+                    if(loginTime!=-1 && ConnectivityManager.ACTION_CAPTIVE_PORTAL_SIGN_IN.equals(getIntent().getAction()) && !firstRun){
+                        ConfigActivity.this.finish();
+                    }else {
+                        mWebViewHelper.setLoginTime(String.valueOf(loginTime));
+                        mWebViewHelper.drawWebUi();
+                    }
                 }
             }
 
@@ -167,19 +174,24 @@ public class ConfigActivity extends AppCompatActivity {
         });
         mWebViewHelper = new WebViewHelper();
         mWebViewHelper.drawWebUi();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter(getString(R.string.configactivity_broadcast_receiver)));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        handleAlienNetwork();
+        if (mWebViewHelper == null) {
+            mWebViewHelper = new WebViewHelper();
+        }
         if (isFirstRun()) {
+            firstRun=true;
             showAboutDialog();
         } else {
             getNotificationPermission();
         }
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter(getString(R.string.configactivity_broadcast_receiver)));
-        cancelNotifications();
-    }
-
-    @Override
-    protected void onResume() {
-        if (mWebViewHelper == null) {
-            mWebViewHelper = new WebViewHelper();
+        if(!"".equals(mWebViewHelper.getUsername())){
+            SignInUtils.signInIfRequired(ConfigActivity.this);
         }
         boolean notifAccess = NotificationManagerCompat.getEnabledListenerPackages(ConfigActivity.this).contains(getPackageName());
         if (!mWebViewHelper.getNotifAccess().equals(String.valueOf(notifAccess))) {
@@ -187,7 +199,6 @@ public class ConfigActivity extends AppCompatActivity {
             mWebViewHelper.drawWebUi();
         }
         cancelNotifications();
-        super.onResume();
     }
 
     private boolean isFirstRun() {
@@ -211,7 +222,7 @@ public class ConfigActivity extends AppCompatActivity {
             alertDialog.getWindow().setDimAmount(0.9f);
         }
         TextView tv = dialogView.findViewById(R.id.clickable_tv1);
-        tv.setText(HtmlCompat.fromHtml("This project is <a href='https://github.com/savsch/serenity'>open source</a>, and no user data is collected by the developer or any third party in any form or manner.\n<br><br><b>Author:</b> <a href='https://github.com/savsch'>savsch</a>", HtmlCompat.FROM_HTML_MODE_COMPACT));
+        tv.setText(HtmlCompat.fromHtml("This project is <a href='https://github.com/savsch/serenity'>open source</a>.\n<br><b>Author:</b> <a href='https://github.com/savsch'>savsch</a>", HtmlCompat.FROM_HTML_MODE_COMPACT));
         tv.setMovementMethod(LinkMovementMethod.getInstance());
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK", (DialogInterface dialog, int which) -> {
             ConfigActivity.this.getNotificationPermission();
@@ -245,5 +256,18 @@ public class ConfigActivity extends AppCompatActivity {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(NOTIF_ID_SETCREDS);
         notificationManager.cancel(NOTIF_ID_WRONGPASS);
+    }
+    private void handleAlienNetwork(){
+        if(ConnectivityManager.ACTION_CAPTIVE_PORTAL_SIGN_IN.equals(getIntent().getAction())){
+            SignInUtils.isIntendedWiFiNetwork(value -> {
+                if(!value){
+                    Intent i = new Intent();
+                    i.setAction(ConnectivityManager.ACTION_CAPTIVE_PORTAL_SIGN_IN);
+                    i.putExtras(getIntent().getExtras());
+                    i.setPackage("com.google.android.captiveportallogin"); //TODO: use queryIntentActivities to avoid hardcoding, but will require <queries> in manifest and i am lazy
+                    startActivity(i);
+                }
+            });
+        }
     }
 }

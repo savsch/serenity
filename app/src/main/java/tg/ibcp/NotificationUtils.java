@@ -10,6 +10,9 @@ import androidx.core.app.NotificationCompat;
 
 public class NotificationUtils {
     public static void notifyCredentialsNotSet(Context context){
+        if(context instanceof ConfigActivity){
+            return;
+        }
         CharSequence name = "Credentials Setting";
         String description = "Reminder to complete setup";
         String id = "notifyCredentialsNotSet";
@@ -31,6 +34,9 @@ public class NotificationUtils {
         manager.notify(ConfigActivity.NOTIF_ID_SETCREDS, builder.build());
     }
     public static void notifyWrongPass(Context context){
+        if(context instanceof ConfigActivity){
+            return;
+        }
         CharSequence name = "Wrong Credentials";
         String description = "Notify about wrong username/password";
         String id = "notifyWrongPass";
