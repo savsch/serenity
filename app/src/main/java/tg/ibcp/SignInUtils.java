@@ -29,16 +29,11 @@ public class SignInUtils {
     public static void isIntendedWiFiNetwork(final ValueCallback<Boolean> vc){
         new Thread(()->{
             try{
-                HttpURLConnection con =(HttpURLConnection)new URL("http://192.168.249.1:1000/").openConnection();
+                HttpURLConnection con =(HttpURLConnection)new URL("http://192.168.249.1:1000/login?hi").openConnection();
                 con.setConnectTimeout(1500);
-                con.getResponseCode();
-                vc.onReceiveValue(false);
+                vc.onReceiveValue(con.getResponseCode()/100==2);
             }catch (IOException icecream){
-                if(icecream.getCause() instanceof EOFException){
-                    vc.onReceiveValue(true);
-                }else{
-                    vc.onReceiveValue(false);
-                }
+                vc.onReceiveValue(false);
             }
         }).start();
     }
