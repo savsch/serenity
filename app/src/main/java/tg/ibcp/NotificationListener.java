@@ -1,13 +1,16 @@
 package tg.ibcp;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.os.IBinder;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 
 
 public class NotificationListener extends NotificationListenerService {
+    public static final String SSID = "IIT(BHU)";
     @Override
     public IBinder onBind(Intent intent) {
         return super.onBind(intent);
@@ -18,9 +21,18 @@ public class NotificationListener extends NotificationListenerService {
     public void onNotificationPosted(StatusBarNotification sbn){
         if(
                 sbn.getPackageName().equals("android")
-                        && sbn.getNotification().extras.getString("android.text")!=null
-                        && sbn.getNotification().extras.getString("android.text").contains("IIT(BHU)")
+                        && (
+                                (
+                                        sbn.getNotification().extras.getString("android.text")!=null
+                                        && sbn.getNotification().extras.getString("android.text").contains(SSID)
+                                ) || (
+                                        // Xiaomi devices 🤢
+                                        sbn.getNotification().extras.getString("android.title")!=null
+                                        && sbn.getNotification().extras.getString("android.title").contains(SSID)
+                                )
+                        )
         ){
+            NetworkUtils.bindProcessToWiFiNetwork((ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE));
             SignInUtils.signIn(NotificationListener.this);
         }
     }

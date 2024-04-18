@@ -10,6 +10,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,6 +38,13 @@ public class ConfigActivity extends AppCompatActivity {
     public static final int NOTIF_ID_SETCREDS = 42754;
     public static final String SANITIZED_AMPERSAND = "ibcp.AMPERSAND"; // external
     public boolean firstRun = false;
+    private ConnectivityManager connManager;
+    private ConnectivityManager getConnManager(){
+        if(connManager==null){
+            connManager = (ConnectivityManager) ConfigActivity.this.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        }
+        return connManager;
+    }
 
     private class WebViewHelper {
         private WebView wb;
@@ -180,7 +189,13 @@ public class ConfigActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        handleAlienNetwork();
+
+        if(isCaptivePortalSignInAction()) {
+            handleIfAlienNetwork();
+        }else{
+            //bind to wifi network (and not cellular etc):
+            NetworkUtils.bindProcessToWiFiNetwork(getConnManager());
+        }
         if (mWebViewHelper == null) {
             mWebViewHelper = new WebViewHelper();
         }
@@ -257,17 +272,27 @@ public class ConfigActivity extends AppCompatActivity {
         notificationManager.cancel(NOTIF_ID_SETCREDS);
         notificationManager.cancel(NOTIF_ID_WRONGPASS);
     }
-    private void handleAlienNetwork(){
-        if(ConnectivityManager.ACTION_CAPTIVE_PORTAL_SIGN_IN.equals(getIntent().getAction())){
-            SignInUtils.isIntendedWiFiNetwork(value -> {
-                if(!value){
-                    Intent i = new Intent();
-                    i.setAction(ConnectivityManager.ACTION_CAPTIVE_PORTAL_SIGN_IN);
-                    i.putExtras(getIntent().getExtras());
-                    i.setPackage("com.google.android.captiveportallogin"); //TODO: use queryIntentActivities to avoid hardcoding, but will require <queries> in manifest and i am lazy
-                    startActivity(i);
-                }
-            });
+    private boolean isCaptivePortalSignInAction(){
+        return ConnectivityManager.ACTION_CAPTIVE_PORTAL_SIGN_IN.equals(ConfigActivity.this.getIntent().getAction());
+    }
+    private void handleIfAlienNetwork(){
+
+        Network captiveNetwork = getIntent().getParcelableExtra(ConnectivityManager.EXTRA_NETWORK);
+        if (captiveNetwork != null) {
+            getConnManager().bindProcessToNetwork(captiveNetwork);
         }
+        SignInUtils.isIntendedWiFiNetwork(value -> {
+            if (!value) {
+                Intent i = new Intent();
+                i.setAction(ConnectivityManager.ACTION_CAPTIVE_PORTAL_SIGN_IN);
+                Bundle b = getIntent().getExtras();
+                if(b!=null) {
+                    i.putExtras(b);
+                }
+                i.setPackage("com.google.android.captiveportallogin"); //TODO: use queryIntentActivities to avoid hardcoding, but will require <queries> in manifest and i am lazy
+                startActivity(i);
+            }
+        });
+
     }
 }
