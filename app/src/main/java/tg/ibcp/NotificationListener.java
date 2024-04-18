@@ -34,6 +34,9 @@ public class NotificationListener extends NotificationListenerService {
         ){
             NetworkUtils.bindProcessToWiFiNetwork((ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE));
             SignInUtils.signIn(NotificationListener.this);
+            try{
+                snoozeNotification(sbn.getKey(),288_00_000);
+            } catch (Exception ignored){}
         }
     }
 
