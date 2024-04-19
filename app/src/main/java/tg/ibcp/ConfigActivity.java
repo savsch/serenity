@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.CaptivePortal;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -39,6 +40,7 @@ public class ConfigActivity extends AppCompatActivity {
     public static final String SANITIZED_AMPERSAND = "ibcp.AMPERSAND"; // external
     public boolean firstRun = false;
     private ConnectivityManager connManager;
+    public CaptivePortal cp;
     private ConnectivityManager getConnManager(){
         if(connManager==null){
             connManager = (ConnectivityManager) ConfigActivity.this.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -162,6 +164,9 @@ public class ConfigActivity extends AppCompatActivity {
             if (mWebViewHelper != null) {
                 long loginTime = intent.getLongExtra(getString(R.string.login_time_extra), -0x69);
                 if (loginTime != -0x69) {
+                    try{
+                        cp.reportCaptivePortalDismissed();
+                    }catch (Exception ignored){}
                     if(loginTime!=-1 && ConnectivityManager.ACTION_CAPTIVE_PORTAL_SIGN_IN.equals(getIntent().getAction()) && !firstRun){
                         ConfigActivity.this.finish();
                     }else {
@@ -278,6 +283,7 @@ public class ConfigActivity extends AppCompatActivity {
     private void handleIfAlienNetwork(){
 
         Network captiveNetwork = getIntent().getParcelableExtra(ConnectivityManager.EXTRA_NETWORK);
+        cp = getIntent().getParcelableExtra(ConnectivityManager.EXTRA_CAPTIVE_PORTAL);
         if (captiveNetwork != null) {
             getConnManager().bindProcessToNetwork(captiveNetwork);
         }
