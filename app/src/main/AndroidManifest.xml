@@ -30,6 +30,13 @@
                 <action android:name="android.net.conn.CAPTIVE_PORTAL"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+            <intent-filter
+                android:label="Automatic Sign-In IIT(BHU)">
+                <action android:name="com.miui.action.OPEN_WIFI_LOGIN"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="http"/>
+                <data android:scheme="https"/>
+            </intent-filter>
         </activity>
 
         <service

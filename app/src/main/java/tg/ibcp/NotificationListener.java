@@ -19,18 +19,15 @@ public class NotificationListener extends NotificationListenerService {
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void onNotificationPosted(StatusBarNotification sbn){
+        String pkg = sbn.getPackageName();
         if(
-                sbn.getPackageName().equals("android")
-                        && (
-                                (
-                                        sbn.getNotification().extras.getString("android.text")!=null
-                                        && sbn.getNotification().extras.getString("android.text").contains(SSID)
-                                ) || (
-                                        // Xiaomi devices 🤢
-                                        sbn.getNotification().extras.getString("android.title")!=null
-                                        && sbn.getNotification().extras.getString("android.title").contains(SSID)
-                                )
-                        )
+                ("android".equals(pkg) &&
+                        sbn.getNotification().extras.getString("android.text")!=null &&
+                        sbn.getNotification().extras.getString("android.text").contains(SSID)
+                ) || (CompatUtils.MIUI_CAPTIVE_PORTAL_PACKAGE.equals(pkg) &&
+                        sbn.getNotification().extras.getString("android.title")!=null &&
+                        sbn.getNotification().extras.getString("android.title").contains(SSID)
+                )
         ){
             try{
                 sbn.getNotification().contentIntent.send();

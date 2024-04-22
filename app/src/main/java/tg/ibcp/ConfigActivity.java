@@ -12,7 +12,6 @@ import android.graphics.Color;
 import android.net.CaptivePortal;
 import android.net.ConnectivityManager;
 import android.net.Network;
-import android.net.NetworkCapabilities;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -167,8 +166,8 @@ public class ConfigActivity extends AppCompatActivity {
                     try{
                         cp.reportCaptivePortalDismissed();
                     }catch (Exception ignored){}
-                    if(loginTime!=-1 && ConnectivityManager.ACTION_CAPTIVE_PORTAL_SIGN_IN.equals(getIntent().getAction()) && !firstRun){
-                        ConfigActivity.this.finish();
+                    if(loginTime!=-1 && isCaptivePortalSignInAction() && !firstRun){
+                        ConfigActivity.this.finishAndRemoveTask();
                     }else {
                         mWebViewHelper.setLoginTime(String.valueOf(loginTime));
                         mWebViewHelper.drawWebUi();
@@ -278,7 +277,7 @@ public class ConfigActivity extends AppCompatActivity {
         notificationManager.cancel(NOTIF_ID_WRONGPASS);
     }
     private boolean isCaptivePortalSignInAction(){
-        return ConnectivityManager.ACTION_CAPTIVE_PORTAL_SIGN_IN.equals(ConfigActivity.this.getIntent().getAction());
+        return CompatUtils.isCaptivePortalIntent(ConfigActivity.this.getIntent().getAction());
     }
     private void handleIfAlienNetwork(){
 
@@ -290,12 +289,12 @@ public class ConfigActivity extends AppCompatActivity {
         SignInUtils.isIntendedWiFiNetwork(value -> {
             if (!value) {
                 Intent i = new Intent();
-                i.setAction(ConnectivityManager.ACTION_CAPTIVE_PORTAL_SIGN_IN);
+                i.setAction(getIntent().getAction());
                 Bundle b = getIntent().getExtras();
                 if(b!=null) {
                     i.putExtras(b);
                 }
-                i.setPackage("com.google.android.captiveportallogin"); //TODO: use queryIntentActivities to avoid hardcoding, but will require <queries> in manifest and i am lazy
+                i.setPackage(CompatUtils.getDefaultCaptivePortalPackage());
                 startActivity(i);
             }
         });
