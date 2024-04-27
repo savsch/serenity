@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.net.LinkProperties;
 import android.os.Handler;
 import android.os.Looper;
 import android.webkit.ValueCallback;
@@ -18,7 +19,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -26,19 +26,23 @@ import java.net.URL;
 public class SignInUtils {
     public static final String GENERATE_204_URL = "https://gstatic.com/generate_204";
 
-    public static void isIntendedWiFiNetwork(final ValueCallback<Boolean> vc){
-        new Thread(()->{
-            try{
-                HttpURLConnection con =(HttpURLConnection)new URL("http://192.168.249.1:1000/login?hi").openConnection();
-                con.setConnectTimeout(1500);
-                vc.onReceiveValue(con.getResponseCode()/100==2);
-            }catch (IOException icecream){
-                vc.onReceiveValue(false);
-            }
-        }).start();
+    public static void isIntendedWiFiNetwork(LinkProperties linkprops, final ValueCallback<Boolean> vc){
+        if(linkprops!=null && linkprops.getDomains()!=null && linkprops.getDomains().toLowerCase().contains("iitbhu.local")){
+            vc.onReceiveValue(true);
+        }else{
+            new Thread(()->{
+                try{
+                    HttpURLConnection con =(HttpURLConnection)new URL("http://192.168.249.1:1000/login?hi").openConnection();
+                    con.setConnectTimeout(1500);
+                    vc.onReceiveValue(con.getResponseCode()/100==2);
+                }catch (IOException icecream){
+                    vc.onReceiveValue(false);
+                }
+            }).start();
+        }
     }
-    public static void signInIfRequired(Context ctx){
-        isIntendedWiFiNetwork(answer -> {
+    public static void signInIfRequired(LinkProperties linkprops, Context ctx){
+        isIntendedWiFiNetwork(linkprops, answer -> {
             if(answer){
                 try{
                     int resCode = ((HttpURLConnection)new URL(SignInUtils.GENERATE_204_URL).openConnection()).getResponseCode();

@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.CaptivePortal;
 import android.net.ConnectivityManager;
+import android.net.LinkProperties;
 import android.net.Network;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 
 public class ConfigActivity extends AppCompatActivity {
+    public LinkProperties mlp;
     public static final int NOTIF_ID_WRONGPASS = 32423;
     public static final int NOTIF_ID_SETCREDS = 42754;
     public static final String SANITIZED_AMPERSAND = "ibcp.AMPERSAND"; // external
@@ -146,7 +148,7 @@ public class ConfigActivity extends AppCompatActivity {
                             wvh.drawWebUi();
                         }
                 );
-                SignInUtils.signInIfRequired(ctx);
+                SignInUtils.signInIfRequired(mlp, ctx);
             }
 
             @JavascriptInterface
@@ -193,12 +195,12 @@ public class ConfigActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
+        // no time to clean this up cuz exams, looks super ugly and is inefficient
         if(isCaptivePortalSignInAction()) {
-            handleIfAlienNetwork();
+            mlp = handleIfAlienNetwork();
         }else{
             //bind to wifi network (and not cellular etc):
-            NetworkUtils.bindProcessToWiFiNetwork(getConnManager());
+            mlp = NetworkUtils.bindProcessToWiFiNetwork(getConnManager());
         }
         if (mWebViewHelper == null) {
             mWebViewHelper = new WebViewHelper();
@@ -210,7 +212,7 @@ public class ConfigActivity extends AppCompatActivity {
             getNotificationPermission();
         }
         if(!"".equals(mWebViewHelper.getUsername())){
-            SignInUtils.signInIfRequired(ConfigActivity.this);
+            SignInUtils.signInIfRequired(mlp, ConfigActivity.this);
         }
         boolean notifAccess = NotificationManagerCompat.getEnabledListenerPackages(ConfigActivity.this).contains(getPackageName());
         if (!mWebViewHelper.getNotifAccess().equals(String.valueOf(notifAccess))) {
@@ -279,14 +281,16 @@ public class ConfigActivity extends AppCompatActivity {
     private boolean isCaptivePortalSignInAction(){
         return CompatUtils.isCaptivePortalIntent(ConfigActivity.this.getIntent().getAction());
     }
-    private void handleIfAlienNetwork(){
+    private LinkProperties handleIfAlienNetwork(){
 
         Network captiveNetwork = getIntent().getParcelableExtra(ConnectivityManager.EXTRA_NETWORK);
         cp = getIntent().getParcelableExtra(ConnectivityManager.EXTRA_CAPTIVE_PORTAL);
+        LinkProperties lp = null;
         if (captiveNetwork != null) {
             getConnManager().bindProcessToNetwork(captiveNetwork);
+            lp = getConnManager().getLinkProperties(captiveNetwork);
         }
-        SignInUtils.isIntendedWiFiNetwork(value -> {
+        SignInUtils.isIntendedWiFiNetwork(lp, value -> {
             if (!value) {
                 Intent i = new Intent();
                 i.setAction(getIntent().getAction());
@@ -298,6 +302,6 @@ public class ConfigActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
-
+        return lp;
     }
 }
