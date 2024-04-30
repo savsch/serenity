@@ -282,16 +282,18 @@ public class ConfigActivity extends AppCompatActivity {
         return CompatUtils.isCaptivePortalIntent(ConfigActivity.this.getIntent().getAction());
     }
     private LinkProperties handleIfAlienNetwork(){
-
+        boolean bindSuccess;
         Network captiveNetwork = getIntent().getParcelableExtra(ConnectivityManager.EXTRA_NETWORK);
         cp = getIntent().getParcelableExtra(ConnectivityManager.EXTRA_CAPTIVE_PORTAL);
         LinkProperties lp = null;
         if (captiveNetwork != null) {
-            getConnManager().bindProcessToNetwork(captiveNetwork);
+            bindSuccess = getConnManager().bindProcessToNetwork(captiveNetwork);
             lp = getConnManager().getLinkProperties(captiveNetwork);
+        } else {
+            bindSuccess = false;
         }
         SignInUtils.isIntendedWiFiNetwork(lp, value -> {
-            if (!value) {
+            if (!value || !bindSuccess) {
                 Intent i = new Intent();
                 i.setAction(getIntent().getAction());
                 Bundle b = getIntent().getExtras();

@@ -397,6 +397,9 @@ button{
       document.querySelector("#login_checkbox").checked = false;
       document.querySelector('#inputFields').querySelector('button').innerHTML="Set Login Credentials";
       document.querySelector('#setup_login_hint').innerHTML = "Set Login Credentials Below";
+      document.querySelector('#setup_login_hint').onclick = ()=>{
+        document.querySelector('#username').focus();
+      }
       toggleDetailForm();
     }
     if(username && lastLogin!=-1){
